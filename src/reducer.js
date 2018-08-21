@@ -1,5 +1,3 @@
-import {createStore} from 'redux'
-
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -19,29 +17,39 @@ const asObject = (anecdote) => {
   }
 }
 
+const addVote = ( id ) => ( anecdote ) => {
+  if (anecdote.id === id ) {
+    return { ...anecdote, votes: anecdote.votes + 1 }
+  }
+  return anecdote
+} 
+
+const sortByVotes = (a,b) => {
+  if (a.votes > b.votes) return -1
+  if (a.votes < b.votes) return 1
+  return 0
+}
 const initialState = anecdotesAtStart.map(asObject)
 
 const reducer = (state = initialState, action) => {
+  let newState = state
+  console.log('BEFORE: ', newState )
   switch (action.type) {
     case 'VOTE' : {
-      console.log('VOTE: ', action.id)
-      const newState = state.map( anecdote => {
-        if (anecdote.id === action.id ) {
-          return { ...anecdote, votes: anecdote.votes + 1 }
-        }
-        return anecdote
-      })
-      return newState
+      newState = newState.map( addVote( action.id ) )
+      break
+    }
+    case 'ADD' : {
+      newState.push( asObject( action.content ) )
+      break
     }
     default: {
-      console.log('state now: ',state)
-      console.log('action', action)
-      return state
+      console.log('unknown action', action)
     }
   }
-  
+  newState = newState.sort( sortByVotes )
+  console.log('AFTER: ', newState )
+  return newState
 }
 
-const store = createStore(reducer)
-
-export default store
+export default reducer

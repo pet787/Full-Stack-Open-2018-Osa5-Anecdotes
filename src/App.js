@@ -1,17 +1,33 @@
 import React from 'react';
 
-
 class App extends React.Component {
 
-    
+  constructor(props) {
+    super(props)
+    this.state = {
+      content: ''
+    }
+  }
+
+  handleChange = (event) => {
+    this.setState( { content: event.target.value } )
+  }
 
   render() {
-    const store = this.props.store
-    const anecdotes = store.getState()
-    const vote = ( id ) => () => {
-      store.dispatch( {type: 'VOTE', id: id } )
+    const anecdotes = this.props.store.getState()
+    console.log('render',anecdotes)
+    
+    const vote = ( id ) => (event) => {
+      event.preventDefault();
+      this.props.store.dispatch( { type: 'VOTE', id: id } )
     }
-      return (
+    
+    const add = () => (event) => {
+      event.preventDefault();
+      this.props.store.dispatch( { type: 'ADD', content: this.state.content } )
+    }
+
+    return (
       <div>
         <h2>Anecdotes</h2>
         {anecdotes.map(anecdote=>
@@ -21,14 +37,14 @@ class App extends React.Component {
             </div>
             <div>
               has {anecdote.votes}
-              <button onClick={ vote(  anecdote.id ) } >vote</button>
+              <button onClick={ vote( anecdote.id ) } >vote</button>
             </div>
           </div>
         )}
         <h2>create new</h2>
         <form>
-          <div><input /></div>
-          <button>create</button> 
+          <div><input onChange={this.handleChange} /></div>
+          <button onClick={ add() } >create</button> 
         </form>
       </div>
     )
